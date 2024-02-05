@@ -389,7 +389,7 @@ _Mic check, 1, 2_ - In a few moments applications should be lighting up like Chr
 3. 🏆 **Congratulations** if all goes smooth you will have a Kubernetes cluster managed by Flux and your Git repository is driving the state of your cluster.
 
 4. 🧠 Now it's time to pause and go get some motel motor oil ☕ and admire you made it this far!
-
+TODO Here
 ## 📣 Flux w/ Cloudflare post installation
 
 #### 🌐 Public DNS
