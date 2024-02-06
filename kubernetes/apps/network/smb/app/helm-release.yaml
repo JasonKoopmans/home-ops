@@ -59,13 +59,42 @@ spec:
           browser:
             image:
               repository: docker.io/filebrowser/filebrowser
-              tag: latest
+              tag: v2.27.0
+            env:
+              TZ: "${TIMEZONE}"
+              FB_DATABASE: /config/filebrowser.db
+              FB_ROOT: /data
+              FB_LOG: stdout
+              FB_NOAUTH: true
+              FB_PORT: &port 8080
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: *port
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+              startup:
+                enabled: false
+            resources:
+              requests:
+                cpu: 10m
+                memory: 64Mi
+              limits:
+                memory: 512Mi
+            
             service:
               main: 
                 ports:
                   http:
                     enabled: true
-                    port: 80
+                    port: *port
             ingress:
               main:
                 enabled: false
