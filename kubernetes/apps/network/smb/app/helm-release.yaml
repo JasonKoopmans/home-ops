@@ -43,7 +43,7 @@ spec:
                 kube-vip/loadbalancerHostname: smb
                 loadBalancerIP: 0.0.0.0
                 ports:
-                  port139:
+                  http:
                     enabled: true
                     port: 139
                   smb:
@@ -55,4 +55,3 @@ spec:
                 enabled: true
                 mountPath: /srv
                 size: 1Gi
-# Lets go!
