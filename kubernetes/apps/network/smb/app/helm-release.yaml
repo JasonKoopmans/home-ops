@@ -25,7 +25,7 @@ spec:
   values:
     controllers:
       main:
-        strategy: RollingUpdate
+        strategy: Recreate
         containers:
           main:
             image:
@@ -55,3 +55,45 @@ spec:
                 enabled: true
                 mountPath: /srv
                 size: 1Gi
+          
+          browser:
+            image:
+              repository: docker.io/filebrowser/filebrowser
+              tag: latest
+            service:
+              main: 
+                ports:
+                  http:
+                    enabled: true
+                    port: 80
+            ingress:
+              main:
+                enabled: false
+                className: external
+                annotations:
+                  external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
+                hosts:
+                  - host: &host "{{ .Release.Name }}-external.${SECRET_DOMAIN}"
+                    paths:
+                      - path: /
+                        service:
+                          name: main
+                          port: http
+                tls:
+                  - hosts:
+                      - *host
+              internal:
+                enabled: true
+                className: internal
+                hosts:
+                  - host: &host "scans.${SECRET_DOMAIN}"
+                    paths:
+                      - path: /
+                        service:
+                          name: main
+                          port: http
+                tls:
+                  - hosts:
+                      - *host
+
+
