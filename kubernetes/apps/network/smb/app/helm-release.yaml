@@ -47,10 +47,9 @@ spec:
           smb:
             enabled: true
             port: 445
-
-
     persistence:
       data:
+        accessMode: ReadWriteMany
         enabled: true
         mountPath: /srv
         size: 1Gi
