@@ -1,0 +1,56 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: smb
+  namespace: networking
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 2.5.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+      interval: 15m
+  maxHistory: 2
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    image:
+      # https://hub.docker.com/r/dperson/samba
+      repository: docker.io/dperson/samba
+      tag: latest
+    env:
+      TZ: "${TIMEZONE}"
+      # PERMISSIONS: true
+      SHARE: public;/srv;yes;no;yes;all
+    service:
+      main:
+        type: LoadBalancer
+      annotations:
+        kube-vip/loadbalancerHostname: smb
+        loadBalancerIP: 0.0.0.0
+        ports:
+          http:
+            port: 139
+          smb:
+            enabled: true
+            port: 445
+
+
+    persistence:
+      data:
+        enabled: true
+        mountPath: /srv
+        size: 1Gi
