@@ -1,0 +1,118 @@
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: samba-pvc
+spec:
+  storageClassName: openebs-hostpath
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: samba-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: samba
+  template:
+    metadata:
+      labels:
+        app: samba
+    spec:
+      containers:      
+        - name: samba
+          image: dperson/samba
+          env:
+            - name: TZ
+              value: "America/Chicago"
+            - name: SHARE
+              value: "public;/srv;yes;no;yes;all"
+          ports:
+            - containerPort: 139
+            - containerPort: 445
+          volumeMounts:
+            - name: samba-persistent-storage
+              mountPath: /srv
+        
+        - name: browser
+          image: docker.io/filebrowser/filebrowser
+          env: 
+            - name: TZ
+              value: America/Chicago
+            - name: FB_ROOT
+              value: /srv
+            - name: FB_NOAUTH
+              value: "true"
+          ports:
+            - containerPort: 80
+              name: http
+          volumeMounts:
+            - name: samba-persistent-storage
+              mountPath: /srv
+      
+      volumes:
+        - name: samba-persistent-storage
+          persistentVolumeClaim:
+            claimName: samba-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: samba-service
+  annotations:
+    kube-vip/loadbalancerHostname: smb
+    loadBalancerIP: 0.0.0.0
+spec:
+  selector:
+    app: samba
+  type: LoadBalancer
+  ports:
+    - name: http
+      port: 139
+      targetPort: 139
+    - name: smb
+      port: 445
+      targetPort: 445
+
+--- 
+apiVersion: v1
+kind: Service
+metadata:
+  name: browser-service
+spec:
+  selector:
+    app: samba
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: browser-ingress
+spec:
+  ingressClassName: internal
+  tls:
+    - hosts:
+        - scans.koopmans.co
+  rules:
+    - host: scans.koopmans.co
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: browser-service
+                port:
+                  number: 80
