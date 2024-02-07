@@ -35,9 +35,17 @@ spec:
               value: "America/Chicago"
             - name: SHARE
               value: "public;/srv;yes;no;yes;all"
+            - name: SMB
+              value: "true"
+            - name: NMBD
+              value: "true"
           ports:
             - containerPort: 139
             - containerPort: 445
+            - containerPort: 137
+              protocol: UDP
+            - containerPort: 138
+              protocol: UDP
           volumeMounts:
             - name: samba-persistent-storage
               mountPath: /srv
@@ -76,12 +84,20 @@ spec:
     app: samba
   type: LoadBalancer
   ports:
-    - name: http
+    - name: smb-139
       port: 139
       targetPort: 139
-    - name: smb
+    - name: smb-445
       port: 445
       targetPort: 445
+    - name: smb-137
+      protocol: UDP
+      port: 137
+      targetPort: 137
+    - name: smb-138
+      protocol: UDP
+      port: 138
+      targetPort: 138
 
 --- 
 apiVersion: v1
