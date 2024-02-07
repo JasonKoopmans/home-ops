@@ -117,9 +117,7 @@ metadata:
   name: browser-ingress
 spec:
   ingressClassName: internal
-  tls:
-    - hosts:
-        - scans.koopmans.co
+
   rules:
     - host: scans.koopmans.co
       http:
