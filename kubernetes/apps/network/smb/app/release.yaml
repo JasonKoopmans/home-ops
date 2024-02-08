@@ -115,6 +115,13 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: browser-ingress
+  annotations:
+    hajimari.io/enable: "true"
+    hajimari.io/icon: scanner
+    hajimari.io/appName: Scanner Files
+    hajimari.io/group: Services
+    hajimari.io/targetBlank: "true"
+    hajimari.io/info: "Use this service to retrieve files from the 476 prnter downstairs when you scan to a network location"
 spec:
   ingressClassName: internal
 
