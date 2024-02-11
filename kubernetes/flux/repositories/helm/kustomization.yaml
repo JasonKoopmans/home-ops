@@ -12,3 +12,4 @@ resources:
   - ./openebs.yaml
   - ./stakater.yaml
   - ./hajimari.yaml
+  - ./volsync/ks.yaml
