@@ -49,8 +49,8 @@ jobs:
         env:
           BUILDX_NO_DEFAULT_ATTESTATIONS: true
         with:
-          imageName: ghcr.io/${{ github.repository_lc }}/devcontainer
-          cacheFrom: ghcr.io/${{ github.repository_lc }}/devcontainer
+          imageName: ghcr.io/jasonkoopmans/home-ops/devcontainer
+          cacheFrom: ghcr.io/jasonkoopmans/home-ops/devcontainer
           imageTag: base,latest
           platform: linux/amd64,linux/arm64
           configFile: .devcontainer/ci/devcontainer.json
