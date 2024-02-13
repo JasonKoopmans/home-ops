@@ -34,7 +34,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64,linux/arm64         
 
       - if: ${{ github.event_name != 'pull_request' }}
         name: Login to GitHub Container Registry
@@ -49,8 +49,8 @@ jobs:
         env:
           BUILDX_NO_DEFAULT_ATTESTATIONS: true
         with:
-          imageName: ghcr.io/${{ github.repository }}/devcontainer
-          cacheFrom: ghcr.io/${{ github.repository }}/devcontainer
+          imageName: ghcr.io/${{ github.repository_lc }}/devcontainer
+          cacheFrom: ghcr.io/${{ github.repository_lc }}/devcontainer
           imageTag: base,latest
           platform: linux/amd64,linux/arm64
           configFile: .devcontainer/ci/devcontainer.json
