@@ -3,6 +3,7 @@ apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
 metadata:
   name: mariadb-operator
+  namespace: database
 spec:
   interval: 30m
   chart:
@@ -14,4 +15,17 @@ spec:
         name: mariadb-operator
         namespace: flux-system
       interval: 5m
-    
+  values:
+    image:
+      repository: ghcr.io/mariadb-operator/mariadb-operator
+      pullPolicy: IfNotPresent
+      tag: v0.0.27
+    metrics:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+    webhook:
+      certificate:
+        certManager: false
+      serviceMonitor:
+        enabled: true
