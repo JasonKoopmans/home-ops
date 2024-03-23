@@ -13,3 +13,4 @@ resources:
   - ./stakater.yaml
   - ./hajimari.yaml
   - ./backube.yaml
+  - ./mariadb.yaml
