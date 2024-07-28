@@ -1,0 +1,58 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MariaDB
+metadata:
+  name: mariadb-from-backup
+spec:
+  rootPasswordSecretKeyRef:
+    name: mariadb
+    key: root-password
+
+  username: mariadb
+  passwordSecretKeyRef:
+    name: mariadb
+    key: password
+  database: mariadb
+
+  image: mariadb:10.11.7
+  imagePullPolicy: IfNotPresent
+
+  port: 3306
+
+  storage:
+    volumeClaimTemplate:
+      storageClassName: openebs-hostpath
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1Gi
+
+  service:
+    type: LoadBalancer
+    annotations:
+      metallb.universe.tf/loadBalancerIPs: 172.18.0.21
+
+  myCnf: |
+    [mariadb]
+    bind-address=*
+    default_storage_engine=InnoDB
+    binlog_format=row
+    innodb_autoinc_lock_mode=2
+    max_allowed_packet=256M
+
+  bootstrapFrom:
+    s3:
+        bucket: dbtest-backups
+        endpoint: s3.amazonaws.com
+        region:  us-east-1
+        accessKeyIdSecretKeyRef:
+          name: dbtest-minio
+          key: access-key-id
+        secretAccessKeySecretKeyRef:
+          name: dbtest-minio
+          key: secret-access-key
+        tls:
+          enabled: false
+          caSecretKeyRef:
+            name: minio-ca
+            key: ca.crt

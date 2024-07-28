@@ -1,0 +1,28 @@
+---
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: SqlJob
+metadata:
+  name: 01-heartbeat
+spec:
+  mariaDbRef:
+    name: mariadb
+  inheritMetadata:
+    labels:
+      sidecar.istio.io/inject: "false"
+  serviceAccountName: sqljob
+  username: mariadb
+  passwordSecretKeyRef:
+    name: mariadb
+    key: password
+  database: data-test
+  schedule:
+    cron: "*/1 * * * *"
+  sql: |
+    CREATE TABLE IF NOT EXISTS heartbeat (
+      id bigint PRIMARY KEY AUTO_INCREMENT,
+      heartbeat datetime NOT NULL
+    );
+    INSERT INTO heartbeat(heartbeat) VALUES(now()) 
+  ---
+
+

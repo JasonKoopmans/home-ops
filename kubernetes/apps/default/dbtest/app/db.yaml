@@ -42,7 +42,13 @@ spec:
   port: 3306
 
   storage:
-    size: 1Gi
+    volumeClaimTemplate:
+      storageClassName: openebs-hostpath
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1Gi
 
   service:
     type: LoadBalancer
@@ -59,4 +65,67 @@ spec:
 
   metrics:
     enabled: true
-  
+---
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: SqlJob
+metadata:
+  name: 01-heartbeat
+spec:
+  mariaDbRef:
+    name: mariadb
+  inheritMetadata:
+    labels:
+      sidecar.istio.io/inject: "false"
+  serviceAccountName: sqljob
+  username: mariadb
+  passwordSecretKeyRef:
+    name: mariadb
+    key: password
+  database: mariadb
+  schedule:
+    cron: "*/1 * * * *"
+  sql: |
+    CREATE TABLE IF NOT EXISTS heartbeat (
+      id bigint PRIMARY KEY AUTO_INCREMENT,
+      heartbeat datetime NOT NULL
+    );
+    INSERT INTO heartbeat(heartbeat) VALUES(now())     
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: dbtest-minio
+stringData:
+  access-key-id: 1M7EE6MCPV8A7RPBKWR2
+  secret-access-key: phaYQWgxrMi5Zz+IUOdgwK3qo6LpxR5OAt0aKxHX
+  session-token: token
+---
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: Backup
+metadata:
+  name: backup
+spec:
+  mariaDbRef:
+    name: mariadb
+  schedule:
+    cron: "*/5 * * * *"
+    suspend: false
+  maxRetention: 720h # 30 days
+  storage:
+    s3:
+      bucket: dbtest-backups
+      endpoint: s3.amazonaws.com
+      region:  us-east-1
+      accessKeyIdSecretKeyRef:
+        name: dbtest-minio
+        key: access-key-id
+      secretAccessKeySecretKeyRef:
+        name: dbtest-minio
+        key: secret-access-key
+      tls:
+        enabled: false
+        caSecretKeyRef:
+          name: minio-ca
+          key: ca.crt
+---
+

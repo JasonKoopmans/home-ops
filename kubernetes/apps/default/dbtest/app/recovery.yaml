@@ -1,0 +1,22 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: Restore
+metadata:
+  name: restore
+spec:
+  mariaDbRef:
+    name: mariadb
+  s3:
+      bucket: dbtest-backups
+      endpoint: s3.amazonaws.com
+      region:  us-east-1
+      accessKeyIdSecretKeyRef:
+        name: dbtest-minio
+        key: access-key-id
+      secretAccessKeySecretKeyRef:
+        name: dbtest-minio
+        key: secret-access-key
+      tls:
+        enabled: false
+        caSecretKeyRef:
+          name: minio-ca
+          key: ca.crt
