@@ -1,5 +1,5 @@
 ---
-apiVersion: helm.toolkit.fluxcd.io/v2
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
 metadata:
   name: smb
@@ -55,7 +55,7 @@ spec:
                 enabled: true
                 mountPath: /srv
                 size: 1Gi
-          
+
           browser:
             image:
               repository: docker.io/filebrowser/filebrowser
@@ -88,9 +88,9 @@ spec:
                 memory: 64Mi
               limits:
                 memory: 512Mi
-            
+
             service:
-              main: 
+              main:
                 ports:
                   http:
                     enabled: true
