@@ -5,6 +5,7 @@ metadata:
   name: smb
   namespace: flux-system
 spec:
+  targetNamespace: network
   path: ./kubernetes/apps/network/smb/app
   prune: true
   sourceRef:
