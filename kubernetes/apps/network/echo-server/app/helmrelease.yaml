@@ -1,15 +1,15 @@
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
-apiVersion: helm.toolkit.fluxcd.io/v2beta2
+apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: echo-server
+  name: &app echo-server
 spec:
   interval: 30m
   chart:
     spec:
       chart: app-template
-      version: 3.2.1
+      version: 3.3.2
       sourceRef:
         kind: HelmRepository
         name: bjw-s
@@ -20,16 +20,14 @@ spec:
   upgrade:
     cleanupOnFail: true
     remediation:
+      strategy: rollback
       retries: 3
-  uninstall:
-    keepHistory: false
-
   values:
     controllers:
-      main:
+      echo-server:
         strategy: RollingUpdate
         containers:
-          echo-server:
+          app:
             image:
               repository: ghcr.io/mendhak/http-https-echo
               tag: 33
@@ -51,8 +49,6 @@ spec:
                   timeoutSeconds: 1
                   failureThreshold: 3
               readiness: *probes
-              startup:
-                enabled: false
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
@@ -69,38 +65,39 @@ spec:
             runAsUser: 65534
             runAsGroup: 65534
             runAsNonRoot: true
+          topologySpreadConstraints:
+            - maxSkew: 1
+              topologyKey: kubernetes.io/hostname
+              whenUnsatisfiable: DoNotSchedule
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: *app
     service:
-      main:
-        controller: main
+      app:
+        controller: echo-server
         ports:
           http:
             port: *port
-
+    serviceMonitor:
+      app:
+        serviceName: echo-server
+        endpoints:
+          - port: http
+            scheme: http
+            path: /metrics
+            interval: 1m
+            scrapeTimeout: 10s
     ingress:
-      external:
+      app:
         className: external
         annotations:
-          external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
+          external-dns.alpha.kubernetes.io/target: external.${SECRET_DOMAIN}
         hosts:
-          - host: &host "{{ .Release.Name }}-external.${SECRET_DOMAIN}"
+          - host: &host "{{ .Release.Name }}.${SECRET_DOMAIN}"
             paths:
               - path: /
                 service:
-                  identifier: main
+                  identifier: app
                   port: http
         tls:
-          - hosts:
-              - *host
-      internal:
-        enabled: true
-        className: internal
-        hosts:
-          - host: &host "{{ .Release.Name }}-internal.${SECRET_DOMAIN}"
-            paths:
-              - path: /
-                service:
-                  identifer: main
-                  port: http
-        tls:
-          - hosts:
-              - *host
+          - hosts: [*host]
