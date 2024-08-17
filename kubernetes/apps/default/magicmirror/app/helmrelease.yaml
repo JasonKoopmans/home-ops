@@ -61,7 +61,7 @@ spec:
               - run
               - server
             env:
-              TZ: "${TZ}"
+              TZ: "${TIMEZONE}"
               MM_PORT: &port 8080
             probes:
               liveness: &probes
