@@ -9,3 +9,4 @@ resources:
   - ./ingress-nginx/ks.yaml
   - ./k8s-gateway/ks.yaml
   - ./smb/ks.yaml
+  - ./omada-controller/ks.yaml
