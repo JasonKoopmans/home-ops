@@ -10,3 +10,4 @@ resources:
   - ./k8s-gateway/ks.yaml
   - ./smb/ks.yaml
   - ./omada-controller/ks.yaml
+  - ./netboot/ks.yaml
