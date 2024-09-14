@@ -1,0 +1,106 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: netboot
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.4.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s-charts
+        namespace: flux-system
+      interval: 15m
+
+  maxHistory: 2
+
+  install:
+    remediation:
+      retries: 3
+
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+
+  uninstall:
+    keepHistory: false
+
+  values:
+    controllers:
+      main:
+        containers:
+          main:
+            image:
+              repository: ghcr.io/netbootxyz/netbootxyz
+              tag: latest
+    defaultPodOptions:
+      hostNetwork: true
+    service:
+      main:
+        controller: main
+        ports:
+          http:
+            port: 3000
+      web:
+        enabled: true
+        type: LoadBalancer
+        externalTrafficPolicy: Local
+        ipFamilyPolicy: SingleStack
+        controller: main
+        ports:
+          web:
+            enabled: true
+            port: 80
+            targetPort: 80
+            protocol: HTTP
+      tftp:
+        enabled: true
+        primary: false
+        controller: main
+        type: NodePort
+        ports:
+          tftp:
+            enabled: true
+            primary: false
+            port: 69
+            targetPort: 69
+            protocol: UDP
+    ingress:
+      main:
+        enabled: true
+        className: "internal"
+        annotations:
+          hajimari.io/enable: "true"
+          hajimari.io/appName: "Netboot.xyz"
+          hajimari.io/info: "Network boot system"
+          hajimari.io/group: "networking"
+          hajimari.io/icon: "refresh-auto"
+        hosts:
+          - host: &host netboot.${SECRET_DOMAIN}
+            paths:
+              - path: "/"
+                pathType: "Prefix"
+                service:
+                  identifier: main
+                  port: http
+    persistence:
+      config:
+        enabled: true
+        type: persistentVolumeClaim
+        accessMode: ReadWriteOnce
+        size: 1Gi
+        globalMounts:
+          - path: /config
+        retain: true
+      data:
+        enabled: true
+        type: persistentVolumeClaim
+        accessMode: ReadWriteMany
+        size: 50Gi
+        globalMounts:
+          - path: /assets
+        retain: true
