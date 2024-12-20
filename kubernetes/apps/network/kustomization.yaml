@@ -11,3 +11,4 @@ resources:
   - ./smb/ks.yaml
   - ./omada-controller/ks.yaml
   - ./netboot/ks.yaml
+  - ./snagger/ks.yaml
