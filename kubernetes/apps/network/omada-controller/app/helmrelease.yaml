@@ -55,6 +55,9 @@ spec:
               limits:
                 memory: 1200Mi
 
+    defaultPodOptions:
+      hostNetwork: true
+
     service:
       main:
         controller: main
