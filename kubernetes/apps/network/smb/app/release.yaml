@@ -81,7 +81,7 @@ metadata:
   namespace: network
   annotations:
 spec:
-  loadBalancerIP: 192.168.1.30
+  loadBalancerIP: 192.168.1.41
   selector:
     app: samba
   type: LoadBalancer
