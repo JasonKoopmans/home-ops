@@ -9,3 +9,6 @@ resources:
   - ./dbtest/ks.yaml
   - ./magicmirror/ks.yaml
   - ./nfstest/ks.yaml
+  - ./tika/ks.yaml
+  - ./directus/ks.yaml
+  - ./changedetection/ks.yaml
