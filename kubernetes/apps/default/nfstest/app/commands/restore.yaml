@@ -1,0 +1,35 @@
+# These resources can be used to demonstrate a restore of this really simple example app.  
+# `kubectl apply -f ./restore.yaml`
+# should download data from the offsite repository into a pvc on the nfs server.  
+# The `ReplicationDestination` could be edited to provide a point in time restore using the `restoreAsOf` attribute
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-pvc-restore
+  namespace: default
+spec:
+  storageClassName: nfs-provision
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Mi
+
+---
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationDestination
+metadata:
+  name: nfstest-restore
+spec:
+  trigger:
+    manual: restore-once
+  # https://volsync.readthedocs.io/en/stable/usage/restic/index.html#restore-options
+  restic:
+    repository: nfstest-restic-config
+    # Use an existing PVC, don't provision a new one
+    cacheStorageClassName: nfs-provision
+    destinationPVC: nfs-pvc-restore
+    copyMethod: Direct
+    #restoreAsOf: 2022-08-10T20:01:03-04:00

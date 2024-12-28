@@ -1,0 +1,28 @@
+---
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationSource
+metadata:
+  name: nfstest-backup
+spec:
+  # The PVC to be backed up
+  sourcePVC: nfs-pvc
+  trigger:
+    # Take a backup every 30 minutes
+    schedule: "*/45 * * * *"
+  restic:
+    # Prune the repository (repack to free space) every 2 weeks
+    pruneIntervalDays: 14
+    # Name of the Secret with the connection information
+    repository: nfstest-restic-config
+    # Retention policy for backups
+    retain:
+      hourly: 30
+      daily: 8
+      weekly: 5
+      monthly: 16
+      yearly: 3
+    copyMethod: Direct
+    # The StorageClass to use when creating the PiT copy (same as source PVC if omitted)
+    storageClassName: nfs-provision
+    # The VSC to use if the copy method is Snapshot (default if omitted)
+    #volumeSnapshotClassName: my-vsc-name
