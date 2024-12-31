@@ -19,5 +19,3 @@ spec:
   interval: 30m
   retryInterval: 1m
   timeout: 3m
-
-  ## Don't forget to add this to the namespace level ks file to combine together.
