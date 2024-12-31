@@ -1,0 +1,80 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: directus
+  namespace: default
+spec:
+  storageClassName: nfs-provision
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: directus
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: directus
+  template:
+    metadata:
+      labels:
+        app: directus
+    spec:
+      containers:
+      - name: directus
+        image: directus/directus:11.3.5
+        envFrom:
+        - secretRef:
+            name: directus-mariadb
+        ports:
+        - containerPort: 8055
+        volumeMounts:
+        - name: directus-storage
+          mountPath: /directus/uploads
+        - name: directus-storage
+          mountPath: /directus/extensions
+      volumes:
+      - name: directus-storage
+        persistentVolumeClaim:
+          claimName: directus
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: directus
+  namespace: default
+spec:
+  selector:
+    app: directus
+  ports:
+    - protocol: TCP
+      port: 8055
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    external-dns.alpha.kubernetes.io/target: external.koopmans.co
+  name: directus
+  namespace: default
+spec:
+  ingressClassName: external
+  rules:
+  - host: &host "directus.koopmans.co"
+    http:
+      paths:
+      - backend:
+          service:
+            name: directus
+            port:
+              number: 8055
+        path: /
+        pathType: Prefix
+  tls:
+  - hosts:
+    - *host
