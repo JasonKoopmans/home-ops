@@ -4,10 +4,7 @@ kind: Kustomization
 resources:
   - ./namespace.yaml
   - ./hajimari/ks.yaml
-  - ./nodered/ks.yaml
-  - ./minio/ks.yaml
   - ./dbtest/ks.yaml
-  - ./magicmirror/ks.yaml
   - ./nfstest/ks.yaml
   - ./tika/ks.yaml
   - ./directus/ks.yaml
