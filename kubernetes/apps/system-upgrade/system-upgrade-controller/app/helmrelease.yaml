@@ -76,6 +76,8 @@ spec:
     serviceAccount:
       create: true
       name: system-upgrade
+    service:
+      app:
     persistence:
       tmp:
         type: emptyDir
