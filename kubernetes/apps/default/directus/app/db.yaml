@@ -16,7 +16,7 @@ spec:
     key: DB_PASSWORD
   database: directus
 
-  image: mariadb:11.6.2
+  image: mariadb:11.7.2
   imagePullPolicy: IfNotPresent
 
   port: 3306
