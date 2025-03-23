@@ -6,14 +6,13 @@ metadata:
   name: &appname generic-device-plugin
   namespace: flux-system
 spec:
-  targetNamespace: kube-system
   commonMetadata:
     labels:
       app.kubernetes.io/name: *appname
   path: "./kubernetes/main/apps/kube-system/generic-device-plugin/app"
   sourceRef:
     kind: GitRepository
-    name: flux-system
+    name: home-kubernetes
   interval: 30m
   timeout: 5m
   prune: true
