@@ -4,6 +4,7 @@ apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: &app snagger
+  namespace: network
 spec:
   interval: 3m
   chart:
