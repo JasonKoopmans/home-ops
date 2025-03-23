@@ -1,0 +1,134 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app qbittorrent
+  namespace: default
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.7.3
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+      interval: 15m
+  maxHistory: 2
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    controllers:
+      qbittorrent:
+        containers:
+          app:
+            image:
+              repository: ghcr.io/home-operations/qbittorrent
+              tag: 5.0.4
+            env:
+              TZ: ${TIMEZONE}
+              QBITTORRENT__PORT: &port 8080
+            probes:
+              liveness:
+                enabled: true
+              readiness:
+                enabled: true
+              startup:
+                enabled: true
+                spec:
+                  failureThreshold: 30
+                  periodSeconds: 5
+            securityContext:
+              runAsUser: 568
+              runAsGroup: 568
+              runAsNonRoot: true
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                  - ALL
+          gluetun:
+            image:
+              repository: ghcr.io/qdm12/gluetun
+              tag: v3.40.0
+            env:
+              - name: VPN_SERVICE_PROVIDER
+                value: nordvpn
+              - name: VPN_TYPE
+                value: openvpn
+              - name: SERVER_COUNTRIES
+                value: "United States"
+              - name: FIREWALL_INPUT_PORTS
+                value: "8080"
+              - name: FIREWALL_OUTBOUND_SUBNETS
+                # Allow access to k8s subnets
+                value: "10.42.0.0/16,10.43.0.0/16"
+              - name: DOT
+                value: "off"
+            envFrom:
+              - secretRef:
+                  name: vpn-auth
+            securityContext:
+              capabilities:
+                add:
+                  - NET_ADMIN
+                  - NET_RAW
+              allowPrivilegeEscalation: false
+            resources:
+              limits:
+                squat.ai/tun: "1"  #https://github.com/qdm12/gluetun/issues/2606#:~:text=Then%2C%20update%20Gluetun%20containers%20to%20request%20squat.ai/tun%20as%20a%20resource%3A
+        annotations:
+        pod:
+          securityContext:
+            # Seemingly needed b/c of : https://github.com/qdm12/gluetun/issues/2606#:~:text=the%20distant%20future.-,Run%20Gluetun%20in%20privileged%20mode,-Update%20Gluetun%20containers
+            fsGroup: 568
+            fsGroupChangePolicy: "OnRootMismatch"
+    service:
+      app:
+        controller: *app
+        ports:
+          http:
+            port: *port
+    ingress:
+      app:
+        annotations:
+          hajimari.io/enable: "true"
+          hajimari.io/icon: delta
+          hajimari.io/appName: "qBittorrent"
+          hajimari.io/group: Automation
+          hajimari.io/targetBlank: "true"
+          hajimari.io/info: "Tool for downloading and managing torrents"
+        enabled: true
+        className: internal
+        hosts:
+          - host: &host "{{ .Release.Name }}.${SECRET_DOMAIN}"
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
+        tls:
+          - hosts: [*host]
+    persistence:
+      config:
+        enabled: true
+        existingClaim: config-qbittorrent-0
+        advancedMounts:
+          qbittorrent:
+            app:
+              - path: /config
+      media:
+        enabled: true
+        existingClaim: media
+        advancedMounts:
+          qbittorrent:
+            app:
+              - path: /media

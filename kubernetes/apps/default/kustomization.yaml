@@ -9,3 +9,4 @@ resources:
   - ./tika/ks.yaml
   - ./directus/ks.yaml
   - ./changedetection/ks.yaml
+  - ./qbittorrent/ks.yaml
