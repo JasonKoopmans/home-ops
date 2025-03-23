@@ -79,9 +79,10 @@ kind: Service
 metadata:
   name: samba-service
   namespace: network
-  annotations:
+annotations:
+  kube-vip.io/loadbalancerHostname: smb
 spec:
-  loadBalancerIP: 192.168.1.41
+  loadBalancerIP: 0.0.0.0
   selector:
     app: samba
   type: LoadBalancer
