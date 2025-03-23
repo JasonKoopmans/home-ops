@@ -6,4 +6,4 @@ resources:
   - ./cilium/ks.yaml
   - ./metrics-server/ks.yaml
   - ./reloader/ks.yaml
-  - ./generic-device-plugin/app/ks.yaml
+  - ./generic-device-plugin/ks.yaml
