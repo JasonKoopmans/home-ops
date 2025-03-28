@@ -54,7 +54,8 @@ spec:
                 - /bin/sh
                 - -c
                 - |-
-                  TOKEN=`aws ecr get-login-password --region ${REGION} | cut -d' ' -f6`
+                  TOKEN=`aws ecr get-login-password --region $REGION | cut -d' ' -f6`
+                  echo $TOKEN
                   kubectl delete secret -n network --ignore-not-found $SECRET_NAME
                   kubectl create secret -n network docker-registry $SECRET_NAME \
                   --docker-server=$ECR_REPOSITORY \
@@ -62,6 +63,7 @@ spec:
                   --docker-password=$TOKEN \
                   --namespace=network
                   kubectl patch serviceaccount default -p '{"imagePullSecrets":[{"name":"'$SECRET_NAME'"}]}' -n network
+                  sleep 600
               env:
                 - name: AWS_SECRET_ACCESS_KEY
                   valueFrom:
