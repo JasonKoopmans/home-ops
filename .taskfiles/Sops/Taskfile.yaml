@@ -38,7 +38,7 @@ tasks:
 
   .decrypt-file:
     internal: false
-    cmd: sops --decrypt --in-place {{.file}}
+    cmd: sops --decrypt {{.file}}
     requires:
       vars: ["file"]
     preconditions:
