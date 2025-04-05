@@ -32,8 +32,8 @@ spec:
         containers:
           app:
             image:
-              repository: ghcr.io/onedr0p/plex
-              tag: 1.41.5.9522@sha256:6d393c4eee152100bd6762a94bdd891b8c80c1c8a914a7f906b4097ab69fd557
+              repository: plexinc/pms-docker
+              tag: 1.41.5.9522-a96edc606
             env:
               TZ: ${TZ}
               PLEX_ADVERTISE_URL: https://plex.${SECRET_DOMAIN}:443,http://plex-direct.${SECRET_DOMAIN}:32400
@@ -61,7 +61,7 @@ spec:
               requests:
                 cpu: 100m
               limits:
-                memory: 16Gi
+                memory: 4Gi
     service:
       app:
         controller: plex
@@ -85,11 +85,24 @@ spec:
     persistence:
       config:
         type: emptyDir
+        globalMounts:
+          - path: /config/Library/Application Support/Plex Media Server/
 
       # Separate PVC for cache to avoid backing up cache files
       plex-cache:
         type: emptyDir
+        globalMounts:
+          - path: /config/Library/Application Support/Plex Media Server/Cache
+
       tmp:
         type: emptyDir
+        globalMounts:
+        - path: /tmp
       transcode:
         type: emptyDir
+        globalMounts:
+          - path: /transcode
+      var:
+        type: emptyDir
+        globalMounts:
+          - path: /var/run
