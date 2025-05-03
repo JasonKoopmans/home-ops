@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
       - name: directus
-        image: directus/directus:11.6.1
+        image: directus/directus:11.7.2
         envFrom:
         - secretRef:
             name: directus-mariadb
