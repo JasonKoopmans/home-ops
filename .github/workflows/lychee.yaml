@@ -11,4 +11,4 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Run Lychee
-        uses: lycheeverse/lychee-action@v1
+        uses: lycheeverse/lychee-action@v2
