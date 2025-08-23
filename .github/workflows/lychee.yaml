@@ -2,7 +2,7 @@ name: Lychee
 
 on:
   schedule:
-    - cron: '0 0 * * 6'  # Runs every Saturday
+    - cron: '0 0 * * 2'  # Runs every Tuesday
 
 jobs:
   build:
