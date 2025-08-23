@@ -32,7 +32,7 @@ spec:
           app:
             image:
               repository: linuxserver/obsidian
-              tag: 1.8.10
+              tag: 1.9.10
             env:
               CUSTOM_PORT: &port 3000
     service:
