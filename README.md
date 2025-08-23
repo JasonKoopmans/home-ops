@@ -159,7 +159,7 @@ Once you have installed Talos or Debian on your nodes, there are six stages to g
 
 You have two different options for setting up your local workstation.
 
-- First option is using a `devcontainer` which requires you to have Docker and VSCode installed. This method is the fastest to get going because all the required CLI tools are provided for you in my [devcontainer](https://github.com/onedr0p/cluster-template/pkgs/container/cluster-template%2Fdevcontainer) image.
+- ~~First option is using a `devcontainer` which requires you to have Docker and VSCode installed. This method is the fastest to get going because all the required CLI tools are provided for you in my [devcontainer - link removed]() image.~~
 - The second option is setting up the CLI tools directly on your workstation.
 
 #### Devcontainer method
